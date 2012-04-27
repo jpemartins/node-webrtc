@@ -1,0 +1,4 @@
+*.o
+webrtc.node
+deps/webrtc
+build/

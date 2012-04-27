@@ -1,0 +1,12 @@
+{
+    "name": "node-webrtc"
+  , "version": "0.0.1"
+  , "description": "WebRTC in Node.JS!"
+  , "keywords": []
+  , "author": "João Martins <joao.marcal.martins@gmail.com>"
+  , "dependencies": {
+  	   "colors": "latest"
+  }
+  , "main": "index"
+  , "engines": { "node": "0.6.x" }
+}
