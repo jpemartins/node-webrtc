@@ -6,6 +6,11 @@
   , "author": "João Martins <joao.marcal.martins@gmail.com>"
   , "dependencies": {
   	   "colors": "latest"
+     , "ws": "latest"
+	 , "express": "latest"
+
+	 , "console-trace": "latest"
+	 , "optimist": "latest"
   }
   , "main": "index"
   , "engines": { "node": "0.6.x" }

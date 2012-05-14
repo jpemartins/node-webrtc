@@ -1,4 +1,4 @@
-WEBRTC_ROOT_PATH = deps/webrtc/stable
+WEBRTC_ROOT_PATH = deps/webrtc/latest
 
 DEFS= -D_LARGEFILE_SOURCE \
 	-D_FILE_OFFSET_BITS=64 \
@@ -10,8 +10,7 @@ DEFS= -D_LARGEFILE_SOURCE \
 	-DLINUX  \
 	-DPOSIX  \
 	-D__STDC_FORMAT_MACROS  \
-	-DDYNAMIC_ANNOTATIONS_ENABLED=1  \
-	-DWTF_USE_DYNAMIC_ANNOTATIONS=1
+	-DDYNAMIC_ANNOTATIONS_ENABLED=0  \
 
 # Flags passed to all source files.
 #   -fvisibility=hidden NodeJS Does not like it
@@ -22,6 +21,7 @@ CFLAGS= -pthread \
 	-Wno-unused-parameter \
 	-Wno-missing-field-initializers \
 	-Wextra \
+	-pipe \
 	-Wno-unused-parameter \
 	-Wno-missing-field-initializers \
 	-I/usr/include/atk-1.0 \
@@ -36,6 +36,9 @@ CFLAGS= -pthread \
 	-I/usr/include/cairo \
 	-I/usr/include/gdk-pixbuf-2.0 \
 	-I/usr/include/pixman-1 \
+	-fno-ident \
+	-fdata-sections \
+	-ffunction-sections \
 	-g
 
 CCFLAGS = -fno-rtti \
@@ -47,8 +50,9 @@ CCFLAGS = -fno-rtti \
 
 INCLUDE_DIRS = -I/usr/include/nodejs/  \
 	-I$(WEBRTC_ROOT_PATH)/third_party/libjingle/source \
-	-I$(WEBRTC_ROOT_PATH)/third_party_mods/libjingle/source \
-	-I$(WEBRTC_ROOT_PATH)/src
+	-I$(WEBRTC_ROOT_PATH)/third_party/libjingle/source \
+	-I$(WEBRTC_ROOT_PATH)/src \
+	-I$(WEBRTC_ROOT_PATH)/src/modules/interface
 
 BUILD_DIR = build/
 NODE_MODULE = webrtc.node
@@ -56,15 +60,13 @@ NODE_MODULE = webrtc.node
 NODE_FLAGS = -o$(BUILD_DIR)/$(NODE_MODULE)
 FLAGS = -obin/sample
 
-WEBRTC_OBJS = $(BUILD_DIR)/defaults.o $(BUILD_DIR)/observer.o
-
-NODE_OBJS = $(WEBRTC_OBJS) $(BUILD_DIR)/binding.o
+NODE_OBJS = $(WEBRTC_OBJS) $(BUILD_DIR)/*.o
 SAMPLE_OBJS = $(WEBRTC_OBJS) $(BUILD_DIR)/main.o
 
 WEBRTC_LIB = lib/webrtc.a
-WEBRTC_LIBS := $(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party_mods/libjingle/libjingle_app.a \
+WEBRTC_LIBS := $(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party/libjingle/libjingle_app.a \
+	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party/jsoncpp/libjsoncpp.a \
 	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party/libsrtp/libsrtp.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party_mods/libjingle/libjsoncpp.a \
 	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libvideo_capture_module.a \
 	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libwebrtc_utility.a \
 	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libaudio_coding_module.a \
@@ -107,28 +109,22 @@ WEBRTC_LIBS := $(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party_mods/libjing
 	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libaudioproc_debug_proto.a \
 	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party/protobuf/libprotobuf_lite.a \
 	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libaudio_device.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party_mods/libjingle/libjingle_p2p.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party_mods/libjingle/libjingle.a \
+	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party/libjingle/libjingle_p2p.a \
+	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party/libjingle/libjingle.a
 
-NODE_WEBRTC_LDFLAGS = -pthread -Wl,-z,noexecstack -fPIC -L/usr/lib/i386-linux-gnu -m32 $(NODE_FLAGS) -Wl,--start-group $(NODE_OBJS) $(WEBRTC_LIBS) -Wl,--end-group -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lm -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0 -lX11 -lXext -lexpat -ldl -lasound -lpulse -shared
+NODE_WEBRTC_LDFLAGS = -pthread -Wl,-z,noexecstack -fPIC -L/usr/lib/i386-linux-gnu -m32 -mmmx -march=pentium4 -msse2 -mfpmath=see -O0 $(NODE_FLAGS) -Wl,--start-group $(NODE_OBJS) $(WEBRTC_LIBS) -Wl,--end-group -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lm -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0 -lX11 -lXext -lexpat -ldl -lasound -lpulse -shared
 
 WEBRTC_LDFLAGS = -pthread -Wl,-z,noexecstack -fPIC -L/usr/lib/i386-linux-gnu -m32 $(FLAGS) -Wl,--start-group $(SAMPLE_OBJS) $(WEBRTC_LIBS) -Wl,--end-group -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lm -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0 -lX11 -lXext -lexpat -ldl -lasound -lpulse
 
-all: binding sample node_module
+all: node_module
 
-sample:
-	g++ $(WEBRTC_LDFLAGS) 
-
-node_module:
+node_module:	
+	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/peerconnection_observer.cc -c -o $(BUILD_DIR)/peerconnection_observer.o	
+	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/peerconnection_proxy.cc -c -o $(BUILD_DIR)/peerconnection_proxy.o	
+	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/gtk_video_renderer.cc -c -o $(BUILD_DIR)/gtk_video_renderer.o	
 	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/binding.cc -c -o $(BUILD_DIR)/binding.o
 	g++ $(NODE_WEBRTC_LDFLAGS)
-	node --debug index.js
-
-binding:
-	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/defaults.cc -c -o $(BUILD_DIR)/defaults.o
-	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/peerconnection_client.cc -c -o $(BUILD_DIR)/peerconnection_client.o
-	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/observer.cc -c -o $(BUILD_DIR)/observer.o	
-	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/main.cc -c -o $(BUILD_DIR)/main.o	
+	./node-dev test/index.js
 
 webrtc:
 	cd $(WEBRTC_ROOT_PATH) && python src/build/merge_libs.py out/Debug/ webrtc-debug-merged.a
