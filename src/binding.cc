@@ -12,6 +12,8 @@
 using namespace node;
 using namespace v8;
 
+static void GtkIteration();
+
 class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
 	private:
 	peerproxy::PeerConnectionProxy* connection_proxy;			
@@ -32,6 +34,7 @@ class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
 		HandleScope scope;
 		
 		Local<FunctionTemplate> t = FunctionTemplate::New(New);
+		Local<FunctionTemplate> r = FunctionTemplate::New(Render);
 
 		function_template = Persistent<FunctionTemplate>::New(t);
 		function_template->SetClassName(String::NewSymbol("PeerConnection"));
@@ -43,6 +46,7 @@ class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
 		NODE_SET_PROTOTYPE_METHOD(function_template, "close", Close);		
 
 		target->Set(String::NewSymbol("PeerConnection"), function_template->GetFunction());		
+		target->Set(String::NewSymbol("render"), r->GetFunction());
 	}
 	
 	PeerConnection() {
@@ -114,11 +118,12 @@ class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
       	for (size_t i = 0; i < tracks->count(); ++i) {
         	webrtc::VideoTrackInterface* track = tracks->at(i);
         	INFO("Setting video renderer for track: ");
-	        track->SetRenderer(window->remote_renderer());
+	        track->SetRenderer(window.remote_renderer());
       	}
       	// If we haven't shared any streams with this peer (we're the receiver)
       	// then do so now.
       	stream->Release();
+      	
 		message = std::string();
 		callback = this->handle_->Get(NODE_PSYMBOL("onaddstream"));
 
@@ -137,6 +142,12 @@ class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
 		callback = this->handle_->Get(NODE_PSYMBOL("onsignalingmessage"));
 
 		ev_async_send(EV_DEFAULT_UC_ &eio_signal_ev);
+	}
+
+	void OnIceCandidate(const webrtc::IceCandidateInterface* candidate) {
+	}
+
+	void OnIceComplete() {
 	}
 
 	static void OnCallback(EV_P_ ev_async *watcher, int revents) {		
@@ -196,6 +207,12 @@ class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
 		peerconnection->ProcessSignalingMessage(args[0]->ToString());
 		return scope.Close(args.This());
 	}
+
+	static Handle<Value> Render(const Arguments& args) {
+		HandleScope scope;
+		GtkIteration();
+		return scope.Close(args.This());
+	}
 };
 
 Persistent<FunctionTemplate> PeerConnection::function_template;
@@ -205,12 +222,9 @@ std::string PeerConnection::message;
 Local<Value> PeerConnection::callback;
 GtkMainWnd PeerConnection::window;
 
-static void GtkMain() {
-   gdk_threads_enter();
-   gtk_main();
-   gdk_threads_leave();
-
-   PeerConnection::window.Destroy();
+static void GtkIteration() {
+	while (gtk_events_pending())
+        gtk_main_iteration();
 }
 
 static void GtkInit() {
@@ -219,7 +233,7 @@ static void GtkInit() {
   	g_type_init();
 	g_thread_init(NULL);
 
-	PeerConnection::window.Create();	
+	PeerConnection::window.Create();
 }
 
 extern "C" {	

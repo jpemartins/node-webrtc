@@ -241,6 +241,8 @@ void GtkMainWnd::OnRedraw() {
       scaled += width * 2;
     }
 
+    /*
+
     VideoRenderer* local_renderer =
         static_cast<VideoRenderer*>(local_renderer_wrapper_->renderer());
     if (local_renderer && local_renderer->image()) {
@@ -263,6 +265,8 @@ void GtkMainWnd::OnRedraw() {
         scaled += width * 2;
       }
     }
+    
+    */
 
     gdk_draw_rgb_32_image(draw_area_->window,
                           draw_area_->style->fg_gc[GTK_STATE_NORMAL],
@@ -318,8 +322,6 @@ bool GtkMainWnd::VideoRenderer::RenderFrame(const cricket::VideoFrame* frame) {
   gdk_threads_leave();
 
   g_idle_add(Redraw, main_wnd_);  
-  INFO("RenderFrame");
-
   return true;
 }
 

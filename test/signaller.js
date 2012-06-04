@@ -3,11 +3,6 @@ require('console-trace');
 console.log("node " + process.version);
 
 var express = require('express')
-  , argv = require('optimist')
-	.usage("Usage: signaller.js --port [num]")
-		.demand(['port'])
-		.argv
-
   , WebSocketServer = require('ws').Server
   , WebSocket = require('ws');
 
@@ -64,6 +59,6 @@ queue.on('connection', function (connection) {
 	}
 });
 
-console.t.log("Creating queue");
-
-app.listen(argv.port);
+app.listen(process.env.PORT || 9999, function () {
+	console.t.log("Creating queue on PORT=%s", app.address().port);
+});

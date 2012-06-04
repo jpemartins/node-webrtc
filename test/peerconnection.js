@@ -25,7 +25,7 @@ if (env.browser) {
 			.split("&")
 			.map(function (value) {
 				if (value.length == 0) {
-					return
+					return;
 				}
 
 				var p = value.split("=");
@@ -43,6 +43,7 @@ console.log("Environment: caller=%s, capture=%s, browser=%s, node=%s", env.calle
 
 function MessageQueue (url) {
     this.wsUrl = url || "ws://127.0.0.1:9999/";
+    //this.wsUrl = url || "ws://193.136.93.204:9999/";
     
     this.queue = [];
     this.ready = false;
@@ -270,7 +271,6 @@ queue.onmessage = function (event) {
   
   console.log("answering");
   answer(event);
-  
 }
 
 console.log("queue connecting");
@@ -279,7 +279,7 @@ queue.connect();
 // Node.JS
 if (env.node && env.caller) {
   call();
-  console.log("calling");
+  console.log("calling");  
 }
 
 // Browser
@@ -287,3 +287,12 @@ if (env.browser && env.caller) {
   navigator.webkitGetUserMedia(captureOptions, onCaptureSuccess, onCaptureError);
 }
 
+/*
+// 'XXX' TODO - Do this automatically
+*/
+if (env.node) { 
+  
+  setInterval(function () { 
+    webrtc.render(); 
+  }, 16); 
+}

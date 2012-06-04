@@ -12,9 +12,14 @@ PeerConnectionProxy::PeerConnectionProxy(webrtc::PeerConnectionObserver *observe
     connection_factory_impl = (webrtc::PeerConnectionFactory*) connection_factory.get();
 
     channel_manager = connection_factory_impl->channel_manager();
-  	
+#ifdef LEGACY
 	connection = connection_factory->CreatePeerConnection(
       "STUN stun.l.google.com:19302", observer);
+#else
+	connection = connection_factory->CreateRoapPeerConnection(
+      "STUN stun.l.google.com:19302", observer);
+#endif
+
     connection.get();
 
 	proxy_observer = observer; 
@@ -35,8 +40,13 @@ talk_base::scoped_refptr<webrtc::VideoCaptureModule> PeerConnectionProxy::OpenVi
 
   const size_t kMaxDeviceNameLength = 128;
   const size_t kMaxUniqueIdLength = 256;
+#ifdef LEGACY_BUILD
   uint8 device_name[kMaxDeviceNameLength];
   uint8 unique_id[kMaxUniqueIdLength];
+#else
+  char device_name[kMaxDeviceNameLength];
+  char unique_id[kMaxUniqueIdLength];
+#endif
 
   const size_t device_count = device_info->NumberOfDevices();  
   for (size_t i = 0; i < device_count; ++i) {  	
