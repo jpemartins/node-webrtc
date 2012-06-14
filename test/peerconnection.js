@@ -3,8 +3,7 @@ var env = {
  , browser: typeof(window) !== "undefined"
 
  , caller: true
- , capture: "audio,video"
-
+ , capture: { audio: true, video: true }
  , argv: {}
 }
 

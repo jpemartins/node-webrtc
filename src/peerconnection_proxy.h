@@ -4,7 +4,6 @@
 #include "talk/base/scoped_ptr.h"
 
 #include "talk/app/webrtc/peerconnection.h"
-#include "talk/app/webrtc/peerconnectionfactoryimpl.h"
 #include "talk/app/webrtc/webrtcsession.h"
 
 #include "talk/session/phone/channelmanager.h"

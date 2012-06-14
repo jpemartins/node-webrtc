@@ -1,4 +1,4 @@
-WEBRTC_ROOT_PATH = deps/webrtc/jsep
+#WEBRTC_ROOT_PATH = deps/webrtc/jsep
 
 DEFS= -DWEBRTC_SVNREVISION="2272" \
 	-DLARGEFILE_SOURCE \
@@ -101,6 +101,7 @@ WEBRTC_LIBS_TRUNK := $(WEBRTC_LIB_BUILD).target/third_party/libjingle/libjingle_
 		$(WEBRTC_LIB_BUILD).target/third_party/webrtc/modules/libmedia_file.a \
 		$(WEBRTC_LIB_BUILD).target/third_party/webrtc/modules/librtp_rtcp.a \
 		$(WEBRTC_LIB_BUILD).target/third_party/webrtc/modules/libudp_transport.a \
+		$(WEBRTC_LIB_BUILD).target/third_party/webrtc/modules/libbitrate_controller.a \
 		$(WEBRTC_LIB_BUILD).target/third_party/webrtc/modules/libvideo_processing.a \
 		$(WEBRTC_LIB_BUILD).target/third_party/webrtc/modules/libvideo_processing_sse2.a \
 		$(WEBRTC_LIB_BUILD).target/third_party/webrtc/voice_engine/libvoice_engine_core.a \
@@ -171,19 +172,27 @@ NODE_WEBRTC_LDFLAGS = -pthread -Wl,-z,noexecstack -fPIC -L/usr/lib/i386-linux-gn
 
 WEBRTC_LDFLAGS = -pthread -Wl,-z,noexecstack -fPIC -L/usr/lib/i386-linux-gnu -m32 $(FLAGS) -Wl,--start-group $(SAMPLE_OBJS) $(WEBRTC_LIBS) -Wl,--end-group -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lm -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0 -lX11 -lXext -lexpat -ldl -lasound -lpulse
 
-all: node_module
+all: webrtc node_module
 
 node_module:	
-	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/peerconnection_observer.cc -c -o $(BUILD_DIR)/peerconnection_observer.o	
+ifndef WEBRTC_ROOT_PATH
+	$(error WEBRTC_ROOT_PATH is undefined)
+endif
 	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/peerconnection_proxy.cc -c -o $(BUILD_DIR)/peerconnection_proxy.o	
 	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/gtk_video_renderer.cc -c -o $(BUILD_DIR)/gtk_video_renderer.o	
 	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/binding.cc -c -o $(BUILD_DIR)/binding.o
 	g++ $(NODE_WEBRTC_LDFLAGS)
-	./node-dev test/index.js
+	strip build/webrtc.node
+	./node-dev test/binding_test.js
+
+
+lib: webrtc
+	cd $(WEBRTC_ROOT_PATH) && python third_party/webrtc/build/merge_libs.py out/Debug/ webrtc-debug-merged.a
+	mv $(WEBRTC_ROOT_PATH)/webrtc-debug-merged.a lib/webrtc.a
+	strip lib/webrtc.a
 
 webrtc:
-	cd $(WEBRTC_ROOT_PATH) && python src/build/merge_libs.py out/Debug/ webrtc-debug-merged.a
-	cp $(WEBRTC_ROOT_PATH)/webrtc-debug-merged.a lib/webrtc-debug.a
+	#mkdir deps/webrtc
 
 clean: 
 	rm -rf build/*
