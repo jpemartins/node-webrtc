@@ -134,7 +134,6 @@ endif
 	g++ $(NODE_WEBRTC_LDFLAGS)
 	strip build/webrtc.node
 	unlink webrtc.node; ln -s build/webrtc.node webrtc.node
-	node test/binding_test.js
 
 clean: 
 	rm -rf build/*
