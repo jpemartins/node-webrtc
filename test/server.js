@@ -19,6 +19,11 @@ var app = express.createServer()
     , dest_queue: []
   };
 
+app.configure(function() {
+  app.use(express.logger({format: 'dev'}));
+  app.use(express.static(__dirname));
+});
+
 queue.on('connection', function (connection) {
 	var isCallee = !channel.dest
 	  , isCaller = !channel.src

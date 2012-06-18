@@ -6,7 +6,7 @@
 #include "talk/app/webrtc/peerconnection.h"
 
 #include "gtk_video_renderer.h"
-#include "peerconnection_proxy.h"
+#include "peerconnection.h"
 #include "utils.h"
 
 using namespace node;
@@ -16,7 +16,7 @@ static void GtkIteration();
 
 class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
 	private:
-	peerproxy::PeerConnectionProxy* connection_proxy;			
+	node_webrtc::PeerConnection* connection_proxy;			
 
 	public:
 	
@@ -50,7 +50,7 @@ class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
 	}
 	
 	PeerConnection() {
-		connection_proxy = new peerproxy::PeerConnectionProxy(this);
+		connection_proxy = new node_webrtc::PeerConnection(this);
 		connection_proxy->SetWindow(&window);
 	}
 
