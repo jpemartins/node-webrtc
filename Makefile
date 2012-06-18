@@ -1,5 +1,3 @@
-#WEBRTC_ROOT_PATH = deps/webrtc/jsep
-
 DEFS= -DWEBRTC_SVNREVISION="2272" \
 	-DLARGEFILE_SOURCE \
 	-D_FILE_OFFSET_BITS=64 \
@@ -120,59 +118,11 @@ WEBRTC_LIBS_TRUNK := $(WEBRTC_LIB_BUILD).target/third_party/libjingle/libjingle_
 		$(WEBRTC_LIB_BUILD).target/third_party/jsoncpp/libjsoncpp.a \
 		$(WEBRTC_LIB_BUILD).target/third_party/libjingle/libjingle_p2p.a
 
-WEBRTC_LIBS := $(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party/libjingle/libjingle_app.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party/jsoncpp/libjsoncpp.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party/libsrtp/libsrtp.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libvideo_capture_module.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libwebrtc_utility.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libaudio_coding_module.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libCNG.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/common_audio/libsignal_processing.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libG711.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libG722.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libiLBC.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libiSAC.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libiSACFix.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libPCM16B.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libNetEq.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/common_audio/libresampler.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/common_audio/libvad.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/system_wrappers/source/libsystem_wrappers.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libwebrtc_video_coding.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libwebrtc_i420.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libwebrtc_vp8.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/common_video/libwebrtc_libyuv.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party/libyuv/libyuv.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party/libvpx/libvpx.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libvideo_render_module.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/video_engine/libvideo_engine_core.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/common_video/libwebrtc_jpeg.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party/libjpeg_turbo/libjpeg_turbo.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libmedia_file.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/librtp_rtcp.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libudp_transport.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libvideo_processing.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libvideo_processing_sse2.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/voice_engine/libvoice_engine_core.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libaudio_conference_mixer.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libaudio_processing.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libaec.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libapm_util.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libaec_sse2.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libaecm.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libagc.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libns.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libaudioproc_debug_proto.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party/protobuf/libprotobuf_lite.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/src/modules/libaudio_device.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party/libjingle/libjingle_p2p.a \
-	$(WEBRTC_ROOT_PATH)/out/Debug/obj.target/third_party/libjingle/libjingle.a
-
 NODE_WEBRTC_LDFLAGS = -pthread -Wl,-z,noexecstack -fPIC -L/usr/lib/i386-linux-gnu -m32 -mmmx -march=pentium4 -msse2 -mfpmath=see -O0 $(NODE_FLAGS) -Wl,--start-group $(NODE_OBJS) $(WEBRTC_LIBS_TRUNK) -Wl,--end-group -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lm -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0 -lX11 -lXext -lexpat -ldl -lasound -lpulse -shared
 
-WEBRTC_LDFLAGS = -pthread -Wl,-z,noexecstack -fPIC -L/usr/lib/i386-linux-gnu -m32 $(FLAGS) -Wl,--start-group $(SAMPLE_OBJS) $(WEBRTC_LIBS) -Wl,--end-group -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lm -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0 -lX11 -lXext -lexpat -ldl -lasound -lpulse
+WEBRTC_LDFLAGS = -pthread -Wl,-z,noexecstack -fPIC -L/usr/lib/i386-linux-gnu -m32 $(FLAGS) -Wl,--start-group $(SAMPLE_OBJS) $(WEBRTC_LIBS_TRUNK) -Wl,--end-group -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lm -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0 -lX11 -lXext -lexpat -ldl -lasound -lpulse
 
-all: webrtc node_module
+all: node_module
 
 node_module:	
 ifndef WEBRTC_ROOT_PATH
@@ -183,21 +133,10 @@ endif
 	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/binding.cc -c -o $(BUILD_DIR)/binding.o
 	g++ $(NODE_WEBRTC_LDFLAGS)
 	strip build/webrtc.node
-	./node-dev test/binding_test.js
-
-
-lib: webrtc
-	cd $(WEBRTC_ROOT_PATH) && python third_party/webrtc/build/merge_libs.py out/Debug/ webrtc-debug-merged.a
-	mv $(WEBRTC_ROOT_PATH)/webrtc-debug-merged.a lib/webrtc.a
-	strip lib/webrtc.a
-
-webrtc:
-	#mkdir deps/webrtc
+	unlink webrtc.node; ln -s build/webrtc.node webrtc.node
+	node test/binding_test.js
 
 clean: 
 	rm -rf build/*
-
-cleanall: clean
-	rm lib/webrtc-debug-merged.a
 
 .PHONY: sample node_module
