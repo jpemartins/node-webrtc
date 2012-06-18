@@ -12,6 +12,7 @@
 	 , "console-trace": "latest"
 	 , "optimist": "latest"
   }
+  , "private": true
   , "main": "index"
   , "engines": { "node": "0.7.x" }
 }
