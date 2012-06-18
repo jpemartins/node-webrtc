@@ -128,6 +128,7 @@ node_module:
 ifndef WEBRTC_ROOT_PATH
 	$(error WEBRTC_ROOT_PATH is undefined)
 endif
+	mkdir -p build
 	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/peerconnection.cc -c -o $(BUILD_DIR)/peerconnection.o	
 	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/gtk_video_renderer.cc -c -o $(BUILD_DIR)/gtk_video_renderer.o	
 	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/binding.cc -c -o $(BUILD_DIR)/binding.o
