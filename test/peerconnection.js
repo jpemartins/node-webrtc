@@ -17,6 +17,7 @@ if (env.node) {
   env.argv = require('optimist').argv;
   env.caller = !env.argv.callee;
   env.capture = env.argv.capture || "audio,video"
+  env.queue = env.argv.queue || "127.0.0.1:9999"
 }
 
 if (env.browser) {
@@ -41,8 +42,8 @@ console.log("Arguments: ", env.argv);
 console.log("Environment: caller=%s, capture=%s, browser=%s, node=%s", env.caller, env.capture, env.browser, env.node);
 
 function MessageQueue (url) {
-    this.wsUrl = url || "ws://127.0.0.1:9999/";
-    //this.wsUrl = url || "ws://193.136.93.204:9999/";
+    //this.wsUrl = url || "ws://127.0.0.1:9999/";
+    this.wsUrl = url || "ws://" + (env.browser ? location.host : env.queue);
     
     this.queue = [];
     this.ready = false;
