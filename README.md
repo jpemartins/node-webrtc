@@ -22,5 +22,5 @@ After that, you must point it to WEBRTC_ROOT_PATH.
 	
 Assuming your browser will be the "caller", run the following commands and go [here](http://127.0.0.1:9999/peerconnection.html)
 
-	node test/signaller.js
+	node test/server.js
 	node test/peerconnection.js --callee

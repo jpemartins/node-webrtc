@@ -150,7 +150,7 @@ bool GtkMainWnd::Create() {
   window_ = gtk_window_new(GTK_WINDOW_TOPLEVEL); 
     gtk_window_set_position(GTK_WINDOW(window_), GTK_WIN_POS_CENTER);
     gtk_window_set_default_size(GTK_WINDOW(window_), 640, 480);
-    gtk_window_set_title(GTK_WINDOW(window_), "User Media");
+    gtk_window_set_title(GTK_WINDOW(window_), "Remote Media");
     g_signal_connect(G_OBJECT(window_), "delete-event",
                      G_CALLBACK(&OnDestroyedCallback), this);
     g_signal_connect(window_, "key-press-event", G_CALLBACK(OnKeyPressCallback),
@@ -219,64 +219,20 @@ void GtkMainWnd::OnRedraw() {
     int height = remote_renderer->height();
 
     if (!draw_buffer_.get()) {
-      draw_buffer_size_ = (width * height * 4) * 4;
-      draw_buffer_.reset(new uint8[draw_buffer_size_]);
-      gtk_widget_set_size_request(draw_area_, width * 2, height * 2);
+      draw_buffer_size_ = (width * height) * 4;
+      draw_buffer_.reset((unsigned char*) remote_renderer->image());
+      gtk_widget_set_size_request(draw_area_, width, height);
     }
-
-    const uint32* image = reinterpret_cast<const uint32*>(
-        remote_renderer->image());
-    uint32* scaled = reinterpret_cast<uint32*>(draw_buffer_.get());
-    for (int r = 0; r < height; ++r) {
-      for (int c = 0; c < width; ++c) {
-        int x = c * 2;
-        scaled[x] = scaled[x + 1] = image[c];
-      }
-
-      uint32* prev_line = scaled;
-      scaled += width * 2;
-      memcpy(scaled, prev_line, (width * 2) * 4);
-
-      image += width;
-      scaled += width * 2;
-    }
-
-    /*
-
-    VideoRenderer* local_renderer =
-        static_cast<VideoRenderer*>(local_renderer_wrapper_->renderer());
-    if (local_renderer && local_renderer->image()) {
-      image = reinterpret_cast<const uint32*>(local_renderer->image());
-      scaled = reinterpret_cast<uint32*>(draw_buffer_.get());
-      // Position the local preview on the right side.
-      scaled += (width * 2) - (local_renderer->width() / 2);
-      // right margin...
-      scaled -= 10;
-      // ... towards the bottom.
-      scaled += (height * width * 4) -
-                ((local_renderer->height() / 2) *
-                 (local_renderer->width() / 2) * 4);
-      // bottom margin...
-      scaled -= (width * 2) * 5;
-      for (int r = 0; r < local_renderer->height(); r += 2) {
-        for (int c = 0; c < local_renderer->width(); c += 2) {
-          scaled[c / 2] = image[c + r * local_renderer->width()];
-        }
-        scaled += width * 2;
-      }
-    }
-    
-    */
 
     gdk_draw_rgb_32_image(draw_area_->window,
                           draw_area_->style->fg_gc[GTK_STATE_NORMAL],
                           0,
                           0,
-                          width * 2,
-                          height * 2,
-                          GDK_RGB_DITHER_MAX,
+                          width,
+                          height,
+                          GDK_RGB_DITHER_NONE,
                           draw_buffer_.get(),
-                          (width * 2) * 4);
+                          width * 4);
   }
 
   gdk_threads_leave();
