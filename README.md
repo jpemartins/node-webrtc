@@ -19,6 +19,7 @@ After that, you must point it to WEBRTC_ROOT_PATH.
 
 	export WEBRTC_ROOT_PATH=/path/to/webrtc/trunk
 	make
+	npm install
 
 Testing
 =======
