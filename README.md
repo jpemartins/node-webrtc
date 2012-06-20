@@ -7,7 +7,7 @@ To implement the Media Processing API is in my future work.
 
 Highly unstable. 
 
-It only works on NodeJS 0.7+
+Tested under NodeJS v0.7.8.
 
 REVISION refers to the latest tested revision of Google WebRTC.
 
