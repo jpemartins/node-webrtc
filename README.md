@@ -7,15 +7,13 @@ To implement the Media Processing API is in my future work.
 
 Highly unstable. 
 
-Tested under NodeJS v0.7.8.
-
-REVISION refers to the latest tested revision of Google WebRTC.
+Currently working under Node v0.7.7 and v0.7.8. Others will not work.
 
 Building
 ========
 
 First you must compile Google WebRTC stack. See [official page](http://www.webrtc.org/reference/getting-started) for more information.
-After that, you must point it to WEBRTC_ROOT_PATH.
+After that, you must point it to WEBRTC_ROOT_PATH. REVISION refers to the latest tested revision of Google WebRTC.
 
 	export WEBRTC_ROOT_PATH=/path/to/webrtc/trunk
 	make
