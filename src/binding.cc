@@ -6,7 +6,7 @@
 #include "talk/app/webrtc/peerconnection.h"
 
 #include "gtk_video_renderer.h"
-#include "peerconnectionwrapperproxy.h"
+#include "peerconnectionproxy.h"
 #include "utils.h"
 
 using namespace node;

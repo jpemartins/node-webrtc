@@ -7,8 +7,6 @@ To implement the Media Processing API is in my future work.
 
 Highly unstable. 
 
-Currently working under Node v0.7.7 and v0.7.8. Others will not work.
-
 Building
 ========
 
