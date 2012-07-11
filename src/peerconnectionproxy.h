@@ -3,6 +3,7 @@
 
 #include "talk/base/scoped_ptr.h"
 
+#include "talk/app/webrtc/peerconnectionfactory.h"
 #include "talk/app/webrtc/peerconnection.h"
 #include "talk/app/webrtc/webrtcsession.h"
 
@@ -11,16 +12,13 @@
 
 #include "talk/p2p/client/httpportallocator.h"
 
-#include "video_engine/include/vie_base.h"
-#include "video_engine/include/vie_render.h"
-
 #include "utils.h"
 #include "gtk_video_renderer.h"
 
 
 namespace node_webrtc {
 
-class PeerConnection /*: public webrtc::PeerConnectionObserver*/ {
+class PeerConnectionProxy {
 	private:
 		talk_base::scoped_refptr<webrtc::PeerConnectionFactoryInterface> connection_factory;
 		webrtc::PeerConnectionFactory* connection_factory_impl;
@@ -29,17 +27,15 @@ class PeerConnection /*: public webrtc::PeerConnectionObserver*/ {
 		cricket::ChannelManager* channel_manager;
 
 		talk_base::scoped_ptr<cricket::PortAllocator> port_allocator;
-		talk_base::scoped_ptr<webrtc::WebRtcSession> session;
 
 		webrtc::PeerConnectionObserver* proxy_observer;
 
 		GtkMainWnd* window;
-		webrtc::ViERender* vie;
 
 	public:
-		PeerConnection();
-		PeerConnection(webrtc::PeerConnectionObserver *observer);
-		~PeerConnection();
+		PeerConnectionProxy();
+		PeerConnectionProxy(webrtc::PeerConnectionObserver *observer);
+		~PeerConnectionProxy();
 
 		void SetWindow(GtkMainWnd* window_);
 		talk_base::scoped_refptr<webrtc::VideoCaptureModule> OpenVideoCaptureDevice();

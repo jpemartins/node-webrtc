@@ -51,11 +51,10 @@ CCFLAGS = -fno-rtti \
 
 INCLUDE_DIRS = -I/usr/include/nodejs/  \
 	-I$(WEBRTC_ROOT_PATH)/third_party/webrtc \
+	-I$(WEBRTC_ROOT_PATH)/third_party/webrtc/modules/interface \
 	-I$(WEBRTC_ROOT_PATH)/third_party/ \
 	-I$(WEBRTC_ROOT_PATH)/third_party/libjingle/source \
 	-I$(WEBRTC_ROOT_PATH)/third_party/libjingle/overrides \
-	-I$(WEBRTC_ROOT_PATH)/src \
-	-I$(WEBRTC_ROOT_PATH)/src/modules/interface \
 	-I$(WEBRTC_ROOT_PATH)/testing/gtest/include
 
 BUILD_DIR = build/
@@ -122,14 +121,28 @@ NODE_WEBRTC_LDFLAGS = -pthread -Wl,-z,noexecstack -fPIC -L/usr/lib/i386-linux-gn
 
 WEBRTC_LDFLAGS = -pthread -Wl,-z,noexecstack -fPIC -L/usr/lib/i386-linux-gnu -m32 $(FLAGS) -Wl,--start-group $(SAMPLE_OBJS) $(WEBRTC_LIBS_TRUNK) -Wl,--end-group -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lm -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0 -lX11 -lXext -lexpat -ldl -lasound -lpulse
 
-all: node_module
+all: clean node_module
+
+node_module_edge: clean
+ifndef WEBRTC_ROOT_PATH
+	$(error WEBRTC_ROOT_PATH is undefined)
+endif
+	mkdir -p build
+	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/peerconnectionwrapper.cc -c -o $(BUILD_DIR)/peerconnectionwrapper.o
+	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/peerconnectionfactory.cc -c -o $(BUILD_DIR)/peerconnectionfactory.o
+	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/peerconnectionwrapperproxy.cc -c -o $(BUILD_DIR)/peerconnectionwrapperproxy.o
+	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/gtk_video_renderer.cc -c -o $(BUILD_DIR)/gtk_video_renderer.o	
+	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/binding.cc -c -o $(BUILD_DIR)/binding.o
+	g++ $(NODE_WEBRTC_LDFLAGS)
+	#strip build/webrtc.node
+	unlink webrtc.node; ln -s build/webrtc.node webrtc.node
 
 node_module:	
 ifndef WEBRTC_ROOT_PATH
 	$(error WEBRTC_ROOT_PATH is undefined)
 endif
 	mkdir -p build
-	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/peerconnection.cc -c -o $(BUILD_DIR)/peerconnection.o	
+	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/peerconnectionproxy.cc -c -o $(BUILD_DIR)/peerconnectionproxy.o
 	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/gtk_video_renderer.cc -c -o $(BUILD_DIR)/gtk_video_renderer.o	
 	g++ $(DEFS) $(CFLAGS) $(CCFLAGS) $(INCLUDE_DIRS) src/binding.cc -c -o $(BUILD_DIR)/binding.o
 	g++ $(NODE_WEBRTC_LDFLAGS)

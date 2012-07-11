@@ -1,4 +1,4 @@
-#include "peerconnection.h"
+#include "peerconnectionproxy.h"
 
 #include <vector>
 
@@ -7,7 +7,7 @@
 
 using namespace node_webrtc;
 
-PeerConnection::PeerConnection(webrtc::PeerConnectionObserver *observer) {
+PeerConnectionProxy::PeerConnectionProxy(webrtc::PeerConnectionObserver *observer) {
     connection_factory = webrtc::CreatePeerConnectionFactory(); 
     connection_factory_impl = (webrtc::PeerConnectionFactory*) connection_factory.get();
 
@@ -25,14 +25,14 @@ PeerConnection::PeerConnection(webrtc::PeerConnectionObserver *observer) {
 	proxy_observer = observer; 
 }
 
-PeerConnection::~PeerConnection() {
+PeerConnectionProxy::~PeerConnectionProxy() {
 }
 
-void PeerConnection::SetWindow(GtkMainWnd* window_) {
+void PeerConnectionProxy::SetWindow(GtkMainWnd* window_) {
 	window = window_;
 }
 
-talk_base::scoped_refptr<webrtc::VideoCaptureModule> PeerConnection::OpenVideoCaptureDevice() 
+talk_base::scoped_refptr<webrtc::VideoCaptureModule> PeerConnectionProxy::OpenVideoCaptureDevice() 
 {
   webrtc::VideoCaptureModule::DeviceInfo* device_info(
       webrtc::VideoCaptureFactory::CreateDeviceInfo(0));
@@ -73,7 +73,7 @@ talk_base::scoped_refptr<webrtc::VideoCaptureModule> PeerConnection::OpenVideoCa
   return video_device;
 }
 
-void PeerConnection::AddStream() {
+void PeerConnectionProxy::AddStream() {
 	talk_base::scoped_refptr<webrtc::LocalAudioTrackInterface> audio_track(
 	    connection_factory->CreateLocalAudioTrack(
 	    	"audio_label", NULL));
@@ -92,22 +92,22 @@ void PeerConnection::AddStream() {
 	connection->CommitStreamChanges();
 }
 
-void PeerConnection::Send(const std::string& text) {
+void PeerConnectionProxy::Send(const std::string& text) {
 	connection->Send(text);
 }
 
-void PeerConnection::ProcessSignalingMessage(const std::string& text) {
+void PeerConnectionProxy::ProcessSignalingMessage(const std::string& text) {
 	connection->ProcessSignalingMessage(text);
 }
 
-void PeerConnection::Close() {
+void PeerConnectionProxy::Close() {
 	connection->Close();
 }
 
-int PeerConnection::sdp_state() {
+int PeerConnectionProxy::sdp_state() {
 	return connection->sdp_state();
 }
 
-int PeerConnection::ready_state() {
+int PeerConnectionProxy::ready_state() {
 	return connection->ready_state();
 }

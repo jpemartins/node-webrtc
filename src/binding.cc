@@ -1,12 +1,12 @@
 #include <v8.h>
 #include <node.h>
-#include <ev.h>
+#include <uv.h>
 #include <gtk/gtk.h>
 
 #include "talk/app/webrtc/peerconnection.h"
 
 #include "gtk_video_renderer.h"
-#include "peerconnection.h"
+#include "peerconnectionwrapperproxy.h"
 #include "utils.h"
 
 using namespace node;
@@ -16,13 +16,16 @@ static void GtkIteration();
 
 class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
 	private:
-	node_webrtc::PeerConnection* connection_proxy;			
+	node_webrtc::PeerConnectionProxy* connection_proxy;			
 
 	public:
 	
-	static ev_async eio_signal_ev;
-	static std::string message;
+	static uv_async_t uv_signal;
+	
+	static std::string message;	
+	static ObjectWrap* wrap;
 	static Local<Value> callback;
+	static std::string callback_name;
 	
 	static GtkMainWnd window;
 	static Persistent<FunctionTemplate> function_template;
@@ -50,7 +53,7 @@ class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
 	}
 	
 	PeerConnection() {
-		connection_proxy = new node_webrtc::PeerConnection(this);
+		connection_proxy = new node_webrtc::PeerConnectionProxy(this);
 		connection_proxy->SetWindow(&window);
 	}
 
@@ -75,16 +78,18 @@ class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
 
 	void OnError(const std::string& msg) {
 		message = msg;
-		callback = this->handle_->Get(NODE_PSYMBOL("onerror"));
+		wrap = this;
+		callback_name = "onerror";
 
-		ev_async_send(EV_DEFAULT_UC_ &eio_signal_ev);
+		uv_async_send(&uv_signal);
 	}
 	
 	void OnError() {
 		message = std::string("");
-		callback = this->handle_->Get(NODE_PSYMBOL("onerror"));
+		wrap = this;
+		callback_name = "onerror";
 
-		ev_async_send(EV_DEFAULT_UC_ &eio_signal_ev);
+		uv_async_send(&uv_signal);
 	}
 	
 	void OnStateChange(webrtc::PeerConnectionObserver::StateType state) {		
@@ -98,7 +103,7 @@ class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
 			callback = this->handle_->Get(NODE_PSYMBOL("onconnecting"));
 			message = std::string();
 
-			ev_async_send(EV_DEFAULT_UC_ &eio_signal_ev);
+			uv_async_send(EV_DEFAULT_UC_ &uv_signal);
 			return;
 		}
 		//Trigger onconnecting
@@ -108,9 +113,10 @@ class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
 		
 	void OnMessage(const std::string& msg) {
 		message = msg;
-		callback = this->handle_->Get(NODE_PSYMBOL("onmessage"));
+		wrap = this;
+		callback_name = "onmessage";
 
-		ev_async_send(EV_DEFAULT_UC_ &eio_signal_ev);
+		uv_async_send(&uv_signal);
 	}
 	
 	void OnAddStream(webrtc::MediaStreamInterface* stream) {
@@ -125,23 +131,26 @@ class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
       	stream->Release();
       	
 		message = std::string();
-		callback = this->handle_->Get(NODE_PSYMBOL("onaddstream"));
+		wrap = this;
+		callback_name = "onaddstream";
 
-		ev_async_send(EV_DEFAULT_UC_ &eio_signal_ev);
+		uv_async_send(&uv_signal);
 	}
 	
 	void OnRemoveStream(webrtc::MediaStreamInterface* stream) {
 		message = std::string();
-		callback = this->handle_->Get(NODE_PSYMBOL("onremovestream"));
+		wrap = this;
+		callback_name = "onremovestream";
 
-		ev_async_send(EV_DEFAULT_UC_ &eio_signal_ev);
+		uv_async_send(&uv_signal);
 	}
 
 	void OnSignalingMessage(const std::string& msg) {
 		message = msg;
-		callback = this->handle_->Get(NODE_PSYMBOL("onsignalingmessage"));
+		callback_name = "onsignalingmessage";
+		wrap = this;		
 
-		ev_async_send(EV_DEFAULT_UC_ &eio_signal_ev);
+		uv_async_send(&uv_signal);
 	}
 
 	void OnIceCandidate(const webrtc::IceCandidateInterface* candidate) {
@@ -150,10 +159,10 @@ class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
 	void OnIceComplete() {
 	}
 
-	static void OnCallback(EV_P_ ev_async *watcher, int revents) {		
+	static void OnCallback(uv_async_t *watcher, int status) {		
 		HandleScope scope;
-
-		assert(watcher == &eio_signal_ev);
+		
+		callback = wrap->handle_->Get(NODE_PSYMBOL(callback_name.c_str()));
 
 		if (!callback->IsFunction()) {
 			return;
@@ -167,9 +176,7 @@ class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
 
 	
 	static Handle<Value> New(const Arguments& args) {
-    	ev_async_init(&eio_signal_ev, &OnCallback);
-    	ev_async_start(EV_DEFAULT_UC_ &eio_signal_ev);
-    	ev_unref(EV_DEFAULT_UC);
+    	uv_async_init(uv_default_loop(), &uv_signal, OnCallback);
 
 		HandleScope scope;
 		PeerConnection* peerconnection = new PeerConnection();
@@ -217,10 +224,12 @@ class PeerConnection: ObjectWrap, webrtc::PeerConnectionObserver {
 
 Persistent<FunctionTemplate> PeerConnection::function_template;
 
-ev_async PeerConnection::eio_signal_ev;
+uv_async_t PeerConnection::uv_signal;
 std::string PeerConnection::message;
 Local<Value> PeerConnection::callback;
+std::string PeerConnection::callback_name;
 GtkMainWnd PeerConnection::window;
+ObjectWrap* PeerConnection::wrap;
 
 static void GtkIteration() {
 	while (gtk_events_pending())
